@@ -66,20 +66,19 @@ def info_print_loop(oled_display, air_mon):
       try:
           values = collect_data(air_mon)
 
-          eaqi, info["eaqi_h"] = f_estimateAQI(values)
+          eaqi, eaqi_honorific = f_estimateAQI(values)
           info["eaqi"] = eaqi
+          info["eaqi_honorific"] = eaqi_honorific
 
-
-          jsonic_data = dict(pm1_0=values.pm10_cf1,
+          info["data"] = dict(pm1_0=values.pm10_cf1,
                              pm2_5=values.pm25_cf1,
                              pm10=values.pm100_cf1,
                              gr03um=values.gr03um,
                              gr10um=values.gr10um,
                              gr50um=values.gr50um,
-                             gr100um=values.gr100um,
-                             eaqi=eaqi)
+                             gr100um=values.gr100um)
 
-          logger.debug(jsonic_data)
+          logger.debug(info)
 
           oled_display.PrintText("PM1.0= {:2d}".format(values.pm10_cf1),
                                  cords=(2, 2), FontSize=10)
@@ -94,32 +93,24 @@ def info_print_loop(oled_display, air_mon):
 
       except Exception as e:
           logger.exception("Error Reading From Sensor : {}".format(e))
-          info["okay"] = False
-      else:
-          logger.debug(json.dumps(jsonic_data))
-          info["okay"] = True
-          info["data"] = jsonic_data
-
-      if info["okay"] is False:
-          msg = "Error - I have had a significant error and I do not know why."
-          raise GenericSensorReadError(msg)
+          raise GenericSensorReadError(msg) from e
 
       label = None
       if info["data"]["pm2_5"] > threshold_high:
           info['label'] = 'Critical'
-          msg = "Critical - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-          return_code = 2
+          # msg = "Critical - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+          # return_code = 2
       elif info["data"]["pm2_5"] > threshold_moderate:
           info['label'] = 'Warning'
-          msg = "Warning - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-          return_code = 1
+          # msg = "Warning - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+          # return_code = 1
       else:
           info['label'] = 'OK'
-          msg = "OK - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-          return_code = 0
+          # msg = "OK - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+          # return_code = 0
 
 
-      msg = "{label} - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
+      msg = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
 
       perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
@@ -133,8 +124,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="append_const", help="Verbosity Controls",
                         const=1, default=[])
 
-    parser.add_argument("-j", "--json", help="JSON, Write Out", default=None)
-    parser.add_argument("-n", "--nrpe", help="NRPE Write out", default=False, action="store_true")
+    # parser.add_argument("-j", "--json", help="JSON, Write Out", default=None)
+    # parser.add_argument("-n", "--nrpe", help="NRPE Write out", default=False, action="store_true")
 
     args = parser.parse_args()
 
@@ -155,30 +146,3 @@ if __name__ == "__main__":
     oled_display = SSD1306()
     with air_monitor_hat_connection() as air_mon:
         info_print_loop(oled_display, air_mon)
-
-
-        msg = "Unknown - I don't know what has happened"
-        return_code = 3
-        # I have a nrpe request
-        if info["okay"] is False:
-            msg = "Error - I have had a significant error and I do not know why."
-            return_code = 3
-        else:
-
-            if info["data"]["pm2_5"] > threshold_high:
-                msg = "Critical - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-                return_code = 2
-            elif info["data"]["pm2_5"] > threshold_moderate:
-                msg = "Warning - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-                return_code = 1
-            else:
-                msg = "OK - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-                return_code = 0
-
-        perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
-
-        print("{} | {}".format(msg, perf_data))
-        sys.exit(return_code)
-
-
-
