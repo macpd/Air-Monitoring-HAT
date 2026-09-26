@@ -12,3 +12,4 @@ python-dateutil
 six
 smbus
 tk
+prometheus-client

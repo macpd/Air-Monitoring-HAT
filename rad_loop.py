@@ -11,11 +11,13 @@ from os import path
 import sys
 from contextlib import contextmanager
 
+from prometheus_client import start_http_server, Gauge
+from serial import SerialException
+
 import pms_a003
 from pms_a003 import Sensor
 from oled_091 import SSD1306
 from time import sleep
-from serial import SerialException
 from aqi import f_estimateAQI
 
 DIR_PATH = path.abspath(path.dirname(__file__))
@@ -27,6 +29,9 @@ threshold_high = 36
 class GenericSensorReadError(Exception):
   pass
 
+GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0")
+GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5")
+GAUGE_PM10 = Gauge("pm10", "PM10")
 
 @contextmanager
 def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
@@ -108,6 +113,9 @@ def info_print_loop(oled_display, air_mon):
   while True:
     info = get_sensor_data_and_aqi(air_mon)
     print_to_oled(oled_display=oled_display, info=info)
+    GAUGE_PM1_0.set(info['data']['pm1_0'])
+    GAUGE_PM2_5.set(info['data']['pm2_5'])
+    GAUGE_PM10.set(info['data']['pm10'])
 
     perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
