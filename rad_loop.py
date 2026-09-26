@@ -29,12 +29,14 @@ threshold_high = 36
 class GenericSensorReadError(Exception):
   pass
 
-GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0")
-GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5")
-GAUGE_PM10 = Gauge("pm10", "PM10")
-GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index")
-#GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific")
-#GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label")
+GAUGE_NAMESPACE = "air_monitoring"
+
+GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0", namespace=GAUGE_NAMESPACE)
+GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5", namespace=GAUGE_NAMESPACE)
+GAUGE_PM10 = Gauge("pm10", "PM10", namespace=GAUGE_NAMESPACE)
+GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESPACE)
+#GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific", namespace=GAUGE_NAMESPACE)
+#GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label", namespace=GAUGE_NAMESPACE)
 
 @contextmanager
 def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
