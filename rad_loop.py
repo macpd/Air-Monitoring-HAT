@@ -53,68 +53,58 @@ def collect_data(air_mon, max=5):
 
 
 def info_print_loop(oled_display, air_mon):
-    oled_display.DirImage(path.join(DIR_PATH, "Images/SB.png"))
-    oled_display.DrawRect()
+  oled_display.DirImage(path.join(DIR_PATH, "Images/SB.png"))
+  oled_display.DrawRect()
+  oled_display.ShowImage()
+  sleep(1)
+  oled_display.PrintText("  Waiting....", FontSize=14)
+  oled_display.ShowImage()
+
+  while True:
+    info = dict(okay=False, data={})
+
+    try:
+      values = collect_data(air_mon)
+
+      eaqi, eaqi_honorific = f_estimateAQI(values)
+      info["eaqi"] = eaqi
+      info["eaqi_honorific"] = eaqi_honorific
+
+      info["data"] = dict(pm1_0=values.pm10_cf1,
+                         pm2_5=values.pm25_cf1,
+                         pm10=values.pm100_cf1,
+                         gr03um=values.gr03um,
+                         gr10um=values.gr10um,
+                         gr50um=values.gr50um,
+                         gr100um=values.gr100um)
+
+    except Exception as e:
+      logger.exception("Error Reading From Sensor : {}".format(e))
+      msg = "Unknown - I don't know what has happened"
+      raise GenericSensorReadError(msg) from e
+
+    logger.debug(info)
+
+    oled_display.PrintText("PM1.0= {:2d}".format(info['pm1_0']),
+                           cords=(2, 2), FontSize=10)
+    oled_display.PrintText("PM2.5= {:2d}".format(info['pm2_5']),
+                           cords=(65, 2), FontSize=10)
+    oled_display.PrintText("AQI= {:.2f}".format(eaqi),
+                           cords=(25, 20), FontSize=13)
     oled_display.ShowImage()
-    sleep(1)
-    oled_display.PrintText("  Waiting....", FontSize=14)
-    oled_display.ShowImage()
 
-    while True:
-      info = dict(okay=False, data={})
+    if info["data"]["pm2_5"] > threshold_high:
+        info['label'] = 'Critical'
+    elif info["data"]["pm2_5"] > threshold_moderate:
+        info['label'] = 'Warning'
+    else:
+        info['label'] = 'OK'
 
-      try:
-          values = collect_data(air_mon)
+    msg = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
 
-          eaqi, eaqi_honorific = f_estimateAQI(values)
-          info["eaqi"] = eaqi
-          info["eaqi_honorific"] = eaqi_honorific
+    perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
-          info["data"] = dict(pm1_0=values.pm10_cf1,
-                             pm2_5=values.pm25_cf1,
-                             pm10=values.pm100_cf1,
-                             gr03um=values.gr03um,
-                             gr10um=values.gr10um,
-                             gr50um=values.gr50um,
-                             gr100um=values.gr100um)
-
-          logger.debug(info)
-
-          oled_display.PrintText("PM1.0= {:2d}".format(values.pm10_cf1),
-                                 cords=(2, 2), FontSize=10)
-          oled_display.PrintText("PM2.5= {:2d}".format(values.pm25_cf1),
-                                 cords=(65, 2), FontSize=10)
-          oled_display.PrintText("AQI= {:.2f}".format(eaqi),
-                                 cords=(25, 20), FontSize=13)
-          oled_display.ShowImage()
-
-          msg = "Unknown - I don't know what has happened"
-          return_code = 3
-
-      except Exception as e:
-          logger.exception("Error Reading From Sensor : {}".format(e))
-          raise GenericSensorReadError(msg) from e
-
-      label = None
-      if info["data"]["pm2_5"] > threshold_high:
-          info['label'] = 'Critical'
-          # msg = "Critical - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
-          # return_code = 2
-      elif info["data"]["pm2_5"] > threshold_moderate:
-          info['label'] = 'Warning'
-          # msg = "Warning - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
-          # return_code = 1
-      else:
-          info['label'] = 'OK'
-          # msg = "OK - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
-          # return_code = 0
-
-
-      msg = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
-
-      perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
-
-      print("{} | {}".format(msg, perf_data))
+    print("{} | {}".format(msg, perf_data))
 
 
 if __name__ == "__main__":
