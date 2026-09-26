@@ -52,15 +52,15 @@ def collect_data(air_mon, max=5):
     return values
 
 
-def info_print_loop(oled_display, air_mon):
-  oled_display.DirImage(path.join(DIR_PATH, "Images/SB.png"))
-  oled_display.DrawRect()
-  oled_display.ShowImage()
-  sleep(1)
-  oled_display.PrintText("  Waiting....", FontSize=14)
+
+def print_to_oled(oled_display, info):
+  oled_display.PrintText("PM1.0= {:2d}".format(info['data']['pm1_0']), cords=(2, 2), FontSize=10)
+  oled_display.PrintText("PM2.5= {:2d}".format(info['data']['pm2_5']), cords=(65, 2), FontSize=10)
+  oled_display.PrintText("AQI= {:.2f}".format(info['eaqi']), cords=(25, 20), FontSize=13)
   oled_display.ShowImage()
 
-  while True:
+
+def get_sensor_data_and_aqi(air_mon):
     info = dict(okay=False, data={})
 
     try:
@@ -85,14 +85,6 @@ def info_print_loop(oled_display, air_mon):
 
     logger.debug(info)
 
-    oled_display.PrintText("PM1.0= {:2d}".format(info['data']['pm1_0']),
-                           cords=(2, 2), FontSize=10)
-    oled_display.PrintText("PM2.5= {:2d}".format(info['data']['pm2_5']),
-                           cords=(65, 2), FontSize=10)
-    oled_display.PrintText("AQI= {:.2f}".format(eaqi),
-                           cords=(25, 20), FontSize=13)
-    oled_display.ShowImage()
-
     if info["data"]["pm2_5"] > threshold_high:
         info['label'] = 'Critical'
     elif info["data"]["pm2_5"] > threshold_moderate:
@@ -101,6 +93,21 @@ def info_print_loop(oled_display, air_mon):
         info['label'] = 'OK'
 
     info['message'] = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+
+    return info
+
+
+def info_print_loop(oled_display, air_mon):
+  # oled_display.DirImage(path.join(DIR_PATH, "Images/SB.png"))
+  # oled_display.DrawRect()
+  # oled_display.ShowImage()
+  # sleep(1)
+  oled_display.PrintText("  Waiting....", FontSize=14)
+  oled_display.ShowImage()
+
+  while True:
+    info = get_sensor_data_and_aqi(air_mon)
+    print_to_oled(oled_display=oled_display, info)
 
     perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
