@@ -85,9 +85,9 @@ def info_print_loop(oled_display, air_mon):
 
     logger.debug(info)
 
-    oled_display.PrintText("PM1.0= {:2d}".format(info['pm1_0']),
+    oled_display.PrintText("PM1.0= {:2d}".format(info['data']['pm1_0']),
                            cords=(2, 2), FontSize=10)
-    oled_display.PrintText("PM2.5= {:2d}".format(info['pm2_5']),
+    oled_display.PrintText("PM2.5= {:2d}".format(info['data']['pm2_5']),
                            cords=(65, 2), FontSize=10)
     oled_display.PrintText("AQI= {:.2f}".format(eaqi),
                            cords=(25, 20), FontSize=13)
@@ -100,11 +100,11 @@ def info_print_loop(oled_display, air_mon):
     else:
         info['label'] = 'OK'
 
-    msg = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+    info['message'] = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
 
     perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
-    print("{} | {}".format(msg, perf_data))
+    print("{} | {}".format(info['message'], perf_data))
 
 
 if __name__ == "__main__":
