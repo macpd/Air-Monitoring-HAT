@@ -129,6 +129,9 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="append_const", help="Verbosity Controls",
                         const=1, default=[])
 
+    parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
+                        type=int,
+                        default=8000)
     # parser.add_argument("-j", "--json", help="JSON, Write Out", default=None)
     # parser.add_argument("-n", "--nrpe", help="NRPE Write out", default=False, action="store_true")
 
@@ -136,7 +139,7 @@ if __name__ == "__main__":
 
     VERBOSE = len(args.verbose)
 
-    if VERBOSE == 0 or args.nrpe is True:
+    if VERBOSE == 0:
         logging.basicConfig(level=logging.ERROR)
     elif VERBOSE == 1:
         logging.basicConfig(level=logging.WARNING)
@@ -148,6 +151,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     logger.info("Running rad_loop.py")
 
+    start_http_server(args.prometheus_port)
     oled_display = SSD1306()
     with air_monitor_hat_connection() as air_mon:
         info_print_loop(oled_display, air_mon)
