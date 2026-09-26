@@ -92,32 +92,6 @@ def info_print_loop(oled_display, air_mon):
           msg = "Unknown - I don't know what has happened"
           return_code = 3
 
-          if info["okay"] is False:
-              msg = "Error - I have had a significant error and I do not know why."
-              raise GenericSensorReadError(msg)
-
-          label = None
-          if info["data"]["pm2_5"] > threshold_high:
-              label = 'Critical'
-              msg = "Critical - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-              return_code = 2
-          elif info["data"]["pm2_5"] > threshold_moderate:
-              label = 'Warning'
-              msg = "Warning - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-              return_code = 1
-          else:
-              label = 'OK'
-              msg = "OK - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-              return_code = 0
-
-          info['label']
-
-          msg = "{label} - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
-
-          perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
-
-          print("{} | {}".format(msg, perf_data))
-
       except Exception as e:
           logger.exception("Error Reading From Sensor : {}".format(e))
           info["okay"] = False
@@ -125,6 +99,33 @@ def info_print_loop(oled_display, air_mon):
           logger.debug(json.dumps(jsonic_data))
           info["okay"] = True
           info["data"] = jsonic_data
+
+      if info["okay"] is False:
+          msg = "Error - I have had a significant error and I do not know why."
+          raise GenericSensorReadError(msg)
+
+      label = None
+      if info["data"]["pm2_5"] > threshold_high:
+          label = 'Critical'
+          msg = "Critical - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
+          return_code = 2
+      elif info["data"]["pm2_5"] > threshold_moderate:
+          label = 'Warning'
+          msg = "Warning - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
+          return_code = 1
+      else:
+          label = 'OK'
+          msg = "OK - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
+          return_code = 0
+
+      info['label']
+
+      msg = "{label} - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
+
+      perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
+
+      print("{} | {}".format(msg, perf_data))
+
 
 if __name__ == "__main__":
 
