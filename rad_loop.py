@@ -138,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="append_const", help="Verbosity Controls",
                         const=1, default=[])
 
-    parser.add_argument("-v", "--print-to-stdout", action="store_true", help="Print AQI and other read and calculated values to STDOUT")
+    parser.add_argument("--print-to-stdout", action="store_true", help="Print AQI and other read and calculated values to STDOUT")
 
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
                         type=int,
