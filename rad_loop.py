@@ -107,7 +107,7 @@ def info_print_loop(oled_display, air_mon):
 
   while True:
     info = get_sensor_data_and_aqi(air_mon)
-    print_to_oled(oled_display=oled_display, info)
+    print_to_oled(oled_display=oled_display, info=info)
 
     perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
