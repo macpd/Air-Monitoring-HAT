@@ -106,15 +106,15 @@ def info_print_loop(oled_display, air_mon):
 
       label = None
       if info["data"]["pm2_5"] > threshold_high:
-          info['label'] = = 'Critical'
+          info['label'] = 'Critical'
           msg = "Critical - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
           return_code = 2
       elif info["data"]["pm2_5"] > threshold_moderate:
-          info['label'] = = 'Warning'
+          info['label'] = 'Warning'
           msg = "Warning - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
           return_code = 1
       else:
-          info['label'] = = 'OK'
+          info['label'] = 'OK'
           msg = "OK - Air Quality {eaqi_h} ({eaqi:.2f})".format(**info)
           return_code = 0
 
