@@ -138,7 +138,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="append_const", help="Verbosity Controls",
                         const=1, default=[])
 
-    parser.add_argument("-v", "--print-to-stdout", action="store_const", type=bool, default=False help="Verbosity Controls",
+    parser.add_argument("-v", "--print-to-stdout", action="store_const",
+                        type=bool, default=False, help="Verbosity Controls",
                         const=1, default=[])
 
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
