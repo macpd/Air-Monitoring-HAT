@@ -102,9 +102,15 @@ def get_sensor_data_and_aqi(air_mon):
     else:
         info['label'] = 'OK'
 
-    info['message'] = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
-
     return info
+
+
+def print_message_to_stdout(info):
+    message = "{label} - Air Quality {eaqi_honorific} ({eaqi:.2f})".format(**info)
+
+    perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
+
+    print("{} | {}".format(message, perf_data))
 
 
 def info_print_loop(oled_display, air_mon):
@@ -122,17 +128,17 @@ def info_print_loop(oled_display, air_mon):
     GAUGE_PM2_5.set(info['data']['pm2_5'])
     GAUGE_PM10.set(info['data']['pm10'])
     GAUGE_EAQI.set(info['eaqi'])
-
-    perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
-
-    print("{} | {}".format(info['message'], perf_data))
-
+    if args.print_to_stdout:
+      print_message_to_stdout(info)
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-v", "--verbose", action="append_const", help="Verbosity Controls",
+                        const=1, default=[])
+
+    parser.add_argument("-v", "--print-to-stdout", action="store_const", type=bool, default=False help="Verbosity Controls",
                         const=1, default=[])
 
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
