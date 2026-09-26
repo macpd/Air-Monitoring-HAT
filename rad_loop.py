@@ -32,7 +32,7 @@ class GenericSensorReadError(Exception):
 GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0")
 GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5")
 GAUGE_PM10 = Gauge("pm10", "PM10")
-GUAGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index")
+GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index")
 #GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific")
 #GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label")
 
