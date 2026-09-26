@@ -32,6 +32,9 @@ class GenericSensorReadError(Exception):
 GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0")
 GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5")
 GAUGE_PM10 = Gauge("pm10", "PM10")
+GUAGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index")
+#GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific")
+#GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label")
 
 @contextmanager
 def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
@@ -116,6 +119,7 @@ def info_print_loop(oled_display, air_mon):
     GAUGE_PM1_0.set(info['data']['pm1_0'])
     GAUGE_PM2_5.set(info['data']['pm2_5'])
     GAUGE_PM10.set(info['data']['pm10'])
+    GAUGE_EAQI.set(info['eaqi'])
 
     perf_data = " ".join(["{}={}".format(k, v) for k, v in info["data"].items()])
 
