@@ -47,8 +47,8 @@ def f_estimateAQI(collection):
             eaqi = left * right + table["aqil"]
 
             break
-        else:
-            continue
+    if not eaqi:
+      logging.error("eaqi not set. pm25_rounded: %s", pm25_rounded)
 
     return eaqi, eaqi_honorrific
 
