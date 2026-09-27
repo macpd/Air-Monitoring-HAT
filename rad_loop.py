@@ -22,6 +22,7 @@ from aqi import f_estimateAQI
 
 DIR_PATH = path.abspath(path.dirname(__file__))
 DefaultFont = path.join(DIR_PATH, "Fonts/GothamLight.ttf")
+DEFAULT_EXIT_MESSAGE = "Monitoring inactive"
 
 threshold_moderate = 13
 threshold_high = 36
@@ -56,6 +57,14 @@ def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
     logging.debug("Successfully connected to air monitoring sensor")
     yield air_mon
     air_mon.disconnect_hat()
+
+@contextmanager
+def oled_display_bootstrapper(exit_message=DEFAULT_EXIT_MESSAGE):
+  display = SSD1306()
+  display.PrintText("  Waiting....", FontSize=14)
+  display.ShowImage()
+  yield display
+  display.PrintText(exit_message, FontSize=14)
 
 def collect_data(air_mon, max=5):
     values = None
@@ -188,6 +197,6 @@ if __name__ == "__main__":
 
     logger.info("Starting prometheus client on port %d", args.prometheus_port)
     start_http_server(args.prometheus_port)
-    oled_display = SSD1306()
-    with air_monitor_hat_connection() as air_mon:
+    #  oled_display = SSD1306()
+    with oled_display_bootstrapper() as oled_display, air_monitor_hat_connection() as air_mon:
         info_print_loop(oled_display, air_mon)
