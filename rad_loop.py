@@ -40,8 +40,10 @@ GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESP
 
 @contextmanager
 def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
+    logging.info("Connecting to air monitoring sensor on port %s (baudrate: %s", port, baudrate)
     air_mon = Sensor()
     air_mon.connect_hat(port=port, baudrate=baudrate)
+    logging.debug("Successfully connected to air monitoring sensor")
     yield air_mon
     air_mon.disconnect_hat()
 
@@ -114,10 +116,7 @@ def print_message_to_stdout(info):
 
 
 def info_print_loop(oled_display, air_mon):
-  # oled_display.DirImage(path.join(DIR_PATH, "Images/SB.png"))
-  # oled_display.DrawRect()
-  # oled_display.ShowImage()
-  # sleep(1)
+  logging.info("Starting value read loop")
   oled_display.PrintText("  Waiting....", FontSize=14)
   oled_display.ShowImage()
 
@@ -162,6 +161,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     logger.info("Running rad_loop.py")
 
+    logger.info("Starting prometheus client on port %d", args.prometheus_port)
     start_http_server(args.prometheus_port)
     oled_display = SSD1306()
     with air_monitor_hat_connection() as air_mon:
