@@ -6,6 +6,7 @@ services:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
+    user: "${UID:-1007}:${GID:-1007}"
     restart: unless-stopped
 
   node-exporter:
