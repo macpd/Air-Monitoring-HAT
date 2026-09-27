@@ -1,0 +1,14 @@
+# Systemd service definition to run rad_loop.py in a virtual env
+
+[Unit]
+Description=Simple air monitoring service. Reads values from air monitor HAT and exports those values via prometheus client
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=nose
+ExecStart=/home/nose/Air-Monitoring-HAT/venv/bin/python /home/nose/Air-Monitoring-HAT/rad_loop.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
