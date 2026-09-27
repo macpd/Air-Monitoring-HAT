@@ -14,15 +14,15 @@ def f_estimateAQI(collection):
 
     _pm25_table = {"Good": {"cl": 0.0, "ch": 12.0,
                             "aqil": 0, "aqih": 50},
-                   "Moderate": {"cl": 12.1, "ch": 35.4,
+                   "Moderate": {"cl": 12.0, "ch": 35.4,
                                 "aqil": 51, "aqih": 100},
-                   "Unhealthy for Sensitive Groups": {"cl": 35.5, "ch": 55.4,
+                   "Unhealthy for Sensitive Groups": {"cl": 35.4, "ch": 55.4,
                                                       "aqil": 101, "aqih": 150},
-                   "Unhealthy": {"cl": 55.5, "ch": 150.4,
+                   "Unhealthy": {"cl": 55.4, "ch": 150.4,
                                  "aqil": 150.5, "aqih": 250.4},
-                   "Very Unhealthy": {"cl": 150.5, "ch": 250.4,
+                   "Very Unhealthy": {"cl": 150.4, "ch": 250.4,
                                       "aqil": 201, "aqih": 300},
-                   "Hazardous": {"cl": 250.5, "ch": 500.4,
+                   "Hazardous": {"cl": 250.4, "ch": 500.4,
                                  "aqil": 301, "aqih": 500}}
 
     pm25_rounded = math.ceil(collection.pm25_cf1 * 10) / 10
