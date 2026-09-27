@@ -67,7 +67,7 @@ def oled_display_bootstrapper(exit_message=DEFAULT_EXIT_MESSAGE):
     yield display
     displya.NoDisplay()
     display.ShowImage()
-  except Exception:
+  except (Exception, KeyboardInterrupt):
     display.PrintText(exit_message, FontSize=12)
     display.ShowImage()
     raise
