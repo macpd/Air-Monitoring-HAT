@@ -39,7 +39,7 @@ scrape_configs:
     # If prometheus-node-exporter is installed, grab stats about the local
     # machine by default.
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['node-exporter:9100']
 
   - job_name: air_monitor
     scrape_interval: 5s
