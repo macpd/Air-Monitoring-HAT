@@ -19,5 +19,11 @@ services:
     pid: host
     restart: unless-stopped
 
-# volumes:
-  # prometheus_data:
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - /var/lib/grafana/:/var/lib/grafana
+    user: "${UID:-1007}:${GID:-1007}"
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
