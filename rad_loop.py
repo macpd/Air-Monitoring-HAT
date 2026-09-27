@@ -63,9 +63,14 @@ def oled_display_bootstrapper(exit_message=DEFAULT_EXIT_MESSAGE):
   display = SSD1306()
   display.PrintText("  Waiting....", FontSize=14)
   display.ShowImage()
-  yield display
-  display.PrintText(exit_message, FontSize=14)
-  display.ShowImage()
+  try:
+    yield display
+    displya.NoDisplay()
+    display.ShowImage()
+  except Exception:
+    display.PrintText(exit_message, FontSize=12)
+    display.ShowImage()
+    raise
 
 def collect_data(air_mon, max=5):
     values = None
