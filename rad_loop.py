@@ -31,12 +31,22 @@ class GenericSensorReadError(Exception):
 
 GAUGE_NAMESPACE = "air_monitoring"
 
-GAUGE_PM1_0 = Gauge("pm1_0", "PM1.0", namespace=GAUGE_NAMESPACE)
-GAUGE_PM2_5 = Gauge("pm2_5", "PM2.5", namespace=GAUGE_NAMESPACE)
-GAUGE_PM10 = Gauge("pm10", "PM10", namespace=GAUGE_NAMESPACE)
+GAUGE_PM1_0_CURRENT_ATMOSPHERE = Gauge("pm1_0_current_atmosphere", "PM1.0 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_PM2_5_CURRENT_ATMOSPHERE = Gauge("pm2_5_current_atmosphere", "PM2.5 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_PM10_CURRENT_ATMOSPHERE  = Gauge("pm10_current_atmosphere", "PM10 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_PM1_0_STANDARD_ATMOSPHERE = Gauge("pm1_0_standard_atmosphere", "PM1.0 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_PM2_5_STANDARD_ATMOSPHERE = Gauge("pm2_5_standard_atmosphere", "PM2.5 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_PM10_STANDARD_ATMOSPHERE  = Gauge("pm10_standard_atmosphere", "PM10 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
+GAUGE_GR03UM  = Gauge("gr03um", "Particles > 0.3 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
+GAUGE_GR05UM  = Gauge("gr05um", "Particles > 0.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
+GAUGE_GR10UM  = Gauge("gr10um", "Particles > 1.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
+GAUGE_GR25UM  = Gauge("gr25um", "Particles > 2.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
+GAUGE_GR50UM  = Gauge("gr50um", "Particles > 5.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
+GAUGE_GR100UM = Gauge("gr100um", "Particles > 10 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
 GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESPACE)
 #GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific", namespace=GAUGE_NAMESPACE)
 #GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label", namespace=GAUGE_NAMESPACE)
+
 
 @contextmanager
 def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
@@ -85,8 +95,13 @@ def get_sensor_data_and_aqi(air_mon):
       info["data"] = dict(pm1_0=values.pm10_cf1,
                          pm2_5=values.pm25_cf1,
                          pm10=values.pm100_cf1,
+                         pm1_0_std=values.pm10_std,
+                         pm2_5_std=values.pm25_std,
+                         pm10_std=values.pm100_std,
                          gr03um=values.gr03um,
+                         gr05um=values.gr05um,
                          gr10um=values.gr10um,
+                         gr25um=values.gr25um,
                          gr50um=values.gr50um,
                          gr100um=values.gr100um)
 
@@ -123,9 +138,19 @@ def info_print_loop(oled_display, air_mon):
   while True:
     info = get_sensor_data_and_aqi(air_mon)
     print_to_oled(oled_display=oled_display, info=info)
-    GAUGE_PM1_0.set(info['data']['pm1_0'])
-    GAUGE_PM2_5.set(info['data']['pm2_5'])
-    GAUGE_PM10.set(info['data']['pm10'])
+    data = info['data']
+    GAUGE_PM1_0_CURRENT_ATMOSPHERE.set(info['pm1_0'])
+    GAUGE_PM2_5_CURRENT_ATMOSPHERE.set(info['pm2_5'])
+    GAUGE_PM10_CURRENT_ATMOSPHERE.set(info['pm10'])
+    GAUGE_PM1_0_STANDARD_ATMOSPHERE.set(info['pm1_0_std'])
+    GAUGE_PM2_5_STANDARD_ATMOSPHERE.set(info['pm2_5_std'])
+    GAUGE_PM10_STANDARD_ATMOSPHERE.set(info['pm10_std'])
+    GAUGE_GR03UM.set(info['gr03um'])
+    GAUGE_GR05UM.set(info['gr05um'])
+    GAUGE_GR10UM.set(info['gr10um'])
+    GAUGE_GR25UM.set(info['gr25um'])
+    GAUGE_GR50UM.set(info['gr50um'])
+    GAUGE_GR100UM.set(info['gr100um'])
     GAUGE_EAQI.set(info['eaqi'])
     if args.print_to_stdout:
       print_message_to_stdout(info)
