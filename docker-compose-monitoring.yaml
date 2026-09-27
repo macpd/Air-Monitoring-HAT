@@ -1,0 +1,22 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - /var/lib/prometheus:/prometheus
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:v1.9.0
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "/:/host:ro,rslave"
+    pid: host
+    restart: unless-stopped
+
+# volumes:
+  # prometheus_data:
