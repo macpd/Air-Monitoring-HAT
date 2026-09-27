@@ -7,6 +7,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=nose
+WorkingDirectory=/home/nose/Air-Monitoring-HAT/
 ExecStart=/home/nose/Air-Monitoring-HAT/venv/bin/python /home/nose/Air-Monitoring-HAT/rad_loop.py
 Restart=on-abort
 
