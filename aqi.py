@@ -12,25 +12,25 @@ def f_estimateAQI(collection):
 
     logger = logging.getLogger("f_estimateAQI")
 
-    _pm25_table = {"Good": {"cl": 0.0, "ch": 12.0,
+    _pm25_table = {"Good": {"cl": 0, "ch": 12,
                             "aqil": 0, "aqih": 50},
-                   "Moderate": {"cl": 12.0, "ch": 35.5,
+                   "Moderate": {"cl": 12, "ch": 35,
                                 "aqil": 51, "aqih": 100},
-                   "Unhealthy for Sensitive Groups": {"cl": 35.5, "ch": 55.5,
+                   "Unhealthy for Sensitive Groups": {"cl": 35, "ch": 55,
                                                       "aqil": 101, "aqih": 150},
-                   "Unhealthy": {"cl": 55.5, "ch": 150.5,
-                                 "aqil": 150.5, "aqih": 250.5},
-                   "Very Unhealthy": {"cl": 150.5, "ch": 250.5,
+                   "Unhealthy": {"cl": 55, "ch": 150,
+                                 "aqil": 150, "aqih": 250},
+                   "Very Unhealthy": {"cl": 150, "ch": 250,
                                       "aqil": 201, "aqih": 300},
-                   "Hazardous": {"cl": 250.5, "ch": 500.5,
+                   "Hazardous": {"cl": 250, "ch": 500,
                                  "aqil": 301, "aqih": 500}}
 
-    pm25_rounded = round(collection.pm25_cf1, 1)
+    pm25_rounded = round(collection.pm25_cf1)
 
     eaqi = None
     eaqi_honorrific = None
 
-    if pm25_rounded >= 500.5:
+    if pm25_rounded >= 500:
         eaqi = 501
         eaqi_honorrific = "Ludicrous"
 
@@ -43,7 +43,7 @@ def f_estimateAQI(collection):
             logger.debug("Found PM2 in Range for {}".format(honorrific))
 
             left = (table["aqih"] - table["aqil"]) / (table["ch"] - table["cl"])
-            right = ((pm25_rounded - table["cl"]))
+            right = (xollection.pm25_cf1 - table["cl"]))
             eaqi = left * right + table["aqil"]
 
             break
