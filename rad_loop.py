@@ -23,6 +23,7 @@ from aqi import f_estimateAQI
 DIR_PATH = path.abspath(path.dirname(__file__))
 DefaultFont = path.join(DIR_PATH, "Fonts/GothamLight.ttf")
 DEFAULT_EXIT_MESSAGE = "Monitoring inactive"
+DEFAULT_SENSOR_DEV = "/dev/ttyS0"
 
 threshold_moderate = 13
 threshold_high = 36
@@ -50,7 +51,7 @@ GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESP
 
 
 @contextmanager
-def air_monitor_hat_connection(port="/dev/ttyS0", baudrate=9600):
+def air_monitor_hat_connection(port, baudrate=9600):
     logging.info("Connecting to air monitoring sensor on port %s (baudrate: %s", port, baudrate)
     air_mon = Sensor()
     air_mon.connect_hat(port=port, baudrate=baudrate)
@@ -178,6 +179,7 @@ if __name__ == "__main__":
                         const=1, default=[])
 
     parser.add_argument("--print-to-stdout", action="store_true", help="Print AQI and other read and calculated values to STDOUT")
+    parser.add_argument("-d", "--dev", help="Sensor device path", default=DEFAULT_SENSOR_DEV)
 
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
                         type=int,
@@ -204,5 +206,5 @@ if __name__ == "__main__":
     logger.info("Starting prometheus client on port %d", args.prometheus_port)
     start_http_server(args.prometheus_port)
     #  oled_display = SSD1306()
-    with oled_display_bootstrapper() as oled_display, air_monitor_hat_connection() as air_mon:
+    with oled_display_bootstrapper() as oled_display, air_monitor_hat_connection(port=args.dev) as air_mon:
         info_print_loop(oled_display, air_mon)
