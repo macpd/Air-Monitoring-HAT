@@ -36,8 +36,8 @@ services:
     ports:
       - '9641:9641'
     volumes:
-      - "$(pwd)/mqtt2prometheus.yaml:/config.yaml:ro"
+      - ./mqtt2prometheus.yaml:/config.yaml:ro
     environment:
-      - MQTT2PROM_MQTT_USER=mqtt
-      - MQTT2PROM_MQTT_PASSWORD=<placeholder>
+      MQTT2PROM_MQTT_USER: mqtt
+      MQTT2PROM_MQTT_PASSWORD: <placeholder>
 
