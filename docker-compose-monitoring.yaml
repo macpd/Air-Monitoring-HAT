@@ -42,17 +42,22 @@ services:
       - /etc/mosquitto/passwd:/etc/mosquitto/passwd:ro
     restart: unless-stopped
 
-  mqtt2prometheus:
-    image: ghcr.io/hikhvar/mqtt2prometheus:latest
-    user: "${UID:-1007}:${GID:-1007}"
-    ports:
-      - '9641:9641'
-    volumes:
-      - ./mqtt2prometheus.yaml:/config.yaml:ro
+  mqtt-exporter:
+    image: kpetrem/mqtt-exporter
     environment:
-      MQTT2PROM_MQTT_USER: mqtt
-      MQTT2PROM_MQTT_PASSWORD: <placeholder>
+      - MQTT_ADDRESS=mosquitto
+      - PROMETHEUS_PREFIX=sensor_
+      - TOPIC_LABEL=sensor
+      - MQTT_USERNAME=RANDOM_USER
+      - MQTT_PASSWORD=RANDOM_PASSWORD
+    ports:
+      - 9000:9000
     restart: unless-stopped
-    depends_on:
-      - mosquitto
 
+  mosquitto-exporter:
+    image: sapcc/mosquitto-exporter
+    environment:
+      - "BROKER_ENDPOINT=tcp://mosquitto:1883"
+      - MQTT_USER=RANDOM_USER
+      - MQTT_PASS=RANDOM_PASSWORD
+    restart: unless-stopped
