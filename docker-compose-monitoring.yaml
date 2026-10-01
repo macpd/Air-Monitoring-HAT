@@ -36,10 +36,10 @@ services:
       - '1883:1883'
     user: "103:108"
     volumes:
-      - ./mosquitto.conf:/mosquitto/config:ro
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - /var/lib/mosquitto:/var/lib/mosquitto:rw
       - /var/log/mosquitto/:/var/log/mosquitto/:rw
-      - mosquitto-passwd:/etc/mosquitto/passwd:ro
+      - /etc/mosquitto/passwd:/etc/mosquitto/passwd:ro
     restart: unless-stopped
 
   mqtt2prometheus:
