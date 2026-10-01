@@ -211,4 +211,4 @@ if __name__ == "__main__":
     start_http_server(args.prometheus_port)
     #  oled_display = SSD1306()
     with oled_display_bootstrapper() as oled_display, air_monitor_hat_connection(port=args.dev) as air_mon:
-        do_air_monitoring(oled_display, air_mon, metric_label)
+        do_air_monitoring(oled_display, air_mon, metric_label=args.sensor_name)
