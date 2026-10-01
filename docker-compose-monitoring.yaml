@@ -29,3 +29,15 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+
+  mqtt2prometheus:
+    image: ghcr.io/hikhvar/mqtt2prometheus:latest
+    user: "${UID:-1007}:${GID:-1007}"
+    ports:
+      - '9641:9641'
+    volumes:
+      - "$(pwd)/mqtt2prometheus.yaml:/config.yaml:ro"
+    enviroment:
+      - MQTT2PROM_MQTT_USER=mqtt
+      - MQTT2PROM_MQTT_PASSWORD=<placeholder>
+
