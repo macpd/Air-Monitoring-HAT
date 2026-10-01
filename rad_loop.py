@@ -31,21 +31,22 @@ threshold_high = 36
 class GenericSensorReadError(Exception):
   pass
 
-GAUGE_NAMESPACE = "air_monitoring"
+GAUGE_NAMESPACE = "sensor"
+GAUGE_LABEL = "sensor"
 
-GAUGE_PM1_0_CURRENT_ATMOSPHERE = Gauge("pm1_0_current_atmosphere", "PM1.0 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_PM2_5_CURRENT_ATMOSPHERE = Gauge("pm2_5_current_atmosphere", "PM2.5 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_PM10_CURRENT_ATMOSPHERE  = Gauge("pm10_current_atmosphere", "PM10 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_PM1_0_STANDARD_ATMOSPHERE = Gauge("pm1_0_standard_atmosphere", "PM1.0 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_PM2_5_STANDARD_ATMOSPHERE = Gauge("pm2_5_standard_atmosphere", "PM2.5 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_PM10_STANDARD_ATMOSPHERE  = Gauge("pm10_standard_atmosphere", "PM10 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE)
-GAUGE_GR03UM  = Gauge("gr03um", "Particles > 0.3 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_GR05UM  = Gauge("gr05um", "Particles > 0.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_GR10UM  = Gauge("gr10um", "Particles > 1.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_GR25UM  = Gauge("gr25um", "Particles > 2.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_GR50UM  = Gauge("gr50um", "Particles > 5.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_GR100UM = Gauge("gr100um", "Particles > 10 μm per 0.1L air", namespace=GAUGE_NAMESPACE)
-GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESPACE)
+GAUGE_PM1_0_CURRENT_ATMOSPHERE = Gauge("pm1_0_current_atmosphere", "PM1.0 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_PM2_5_CURRENT_ATMOSPHERE = Gauge("pm2_5_current_atmosphere", "PM2.5 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_PM10_CURRENT_ATMOSPHERE  = Gauge("pm10_current_atmosphere", "PM10 μm/m^3 Current Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_PM1_0_STANDARD_ATMOSPHERE = Gauge("pm1_0_standard_atmosphere", "PM1.0 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_PM2_5_STANDARD_ATMOSPHERE = Gauge("pm2_5_standard_atmosphere", "PM2.5 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_PM10_STANDARD_ATMOSPHERE  = Gauge("pm10_standard_atmosphere", "PM10 μm/m^3 Standard Atmosphere", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR03UM  = Gauge("gr03um", "Particles > 0.3 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR05UM  = Gauge("gr05um", "Particles > 0.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR10UM  = Gauge("gr10um", "Particles > 1.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR25UM  = Gauge("gr25um", "Particles > 2.5 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR50UM  = Gauge("gr50um", "Particles > 5.0 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_GR100UM = Gauge("gr100um", "Particles > 10 μm per 0.1L air", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
+GAUGE_EAQI = Gauge("eaqi", "Estimated Air Quality Index", namespace=GAUGE_NAMESPACE, labels=[GAUGE_LABEL])
 #GUAGE_EAQI_HONORIFIC = Gauge("eaqi_honorific", "Estimated Air Quality Index Honorific", namespace=GAUGE_NAMESPACE)
 #GUAGE_EAQI_LABEL = Gauge("eaqi_label", "Estimated Air Quality Index Label", namespace=GAUGE_NAMESPACE)
 
@@ -146,7 +147,7 @@ def print_message_to_stdout(info):
     print("{} | {}".format(message, perf_data))
 
 
-def info_print_loop(oled_display, air_mon):
+def do_air_monitoring(oled_display, air_mon, metric_label):
   logging.info("Starting value read loop")
   oled_display.PrintText("  Waiting....", FontSize=14)
   oled_display.ShowImage()
@@ -155,19 +156,19 @@ def info_print_loop(oled_display, air_mon):
     info = get_sensor_data_and_aqi(air_mon)
     print_to_oled(oled_display=oled_display, info=info)
     data = info['data']
-    GAUGE_PM1_0_CURRENT_ATMOSPHERE.set(data['pm1_0'])
-    GAUGE_PM2_5_CURRENT_ATMOSPHERE.set(data['pm2_5'])
-    GAUGE_PM10_CURRENT_ATMOSPHERE.set(data['pm10'])
-    GAUGE_PM1_0_STANDARD_ATMOSPHERE.set(data['pm1_0_std'])
-    GAUGE_PM2_5_STANDARD_ATMOSPHERE.set(data['pm2_5_std'])
-    GAUGE_PM10_STANDARD_ATMOSPHERE.set(data['pm10_std'])
-    GAUGE_GR03UM.set(data['gr03um'])
-    GAUGE_GR05UM.set(data['gr05um'])
-    GAUGE_GR10UM.set(data['gr10um'])
-    GAUGE_GR25UM.set(data['gr25um'])
-    GAUGE_GR50UM.set(data['gr50um'])
-    GAUGE_GR100UM.set(data['gr100um'])
-    GAUGE_EAQI.set(info['eaqi'])
+    GAUGE_PM1_0_CURRENT_ATMOSPHERE.set(data['pm1_0'], metric_label)
+    GAUGE_PM2_5_CURRENT_ATMOSPHERE.set(data['pm2_5'], metric_label)
+    GAUGE_PM10_CURRENT_ATMOSPHERE.set(data['pm10'], metric_label)
+    GAUGE_PM1_0_STANDARD_ATMOSPHERE.set(data['pm1_0_std'], metric_label)
+    GAUGE_PM2_5_STANDARD_ATMOSPHERE.set(data['pm2_5_std'], metric_label)
+    GAUGE_PM10_STANDARD_ATMOSPHERE.set(data['pm10_std'], metric_label)
+    GAUGE_GR03UM.set(data['gr03um'], metric_label)
+    GAUGE_GR05UM.set(data['gr05um'], metric_label)
+    GAUGE_GR10UM.set(data['gr10um'], metric_label)
+    GAUGE_GR25UM.set(data['gr25um'], metric_label)
+    GAUGE_GR50UM.set(data['gr50um'], metric_label)
+    GAUGE_GR100UM.set(data['gr100um'], metric_label)
+    GAUGE_EAQI.set(info['eaqi'], metric_label)
     if args.print_to_stdout:
       print_message_to_stdout(info)
 
@@ -184,6 +185,9 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
                         type=int,
                         default=8000)
+    parser.add_arguemnt("-n", "--sensor-name",
+                        help="name of sensor added to metrics sensor label",
+                        type=str)
     # parser.add_argument("-j", "--json", help="JSON, Write Out", default=None)
     # parser.add_argument("-n", "--nrpe", help="NRPE Write out", default=False, action="store_true")
 
@@ -207,4 +211,4 @@ if __name__ == "__main__":
     start_http_server(args.prometheus_port)
     #  oled_display = SSD1306()
     with oled_display_bootstrapper() as oled_display, air_monitor_hat_connection(port=args.dev) as air_mon:
-        info_print_loop(oled_display, air_mon)
+        do_air_monitoring(oled_display, air_mon, metric_label)
