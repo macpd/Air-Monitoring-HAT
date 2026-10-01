@@ -185,7 +185,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--prometheus-port", help="port for prometheus",
                         type=int,
                         default=8000)
-    parser.add_arguemnt("-n", "--sensor-name",
+    parser.add_argument("-n", "--sensor-name",
                         help="name of sensor added to metrics sensor label",
                         type=str)
     # parser.add_argument("-j", "--json", help="JSON, Write Out", default=None)
