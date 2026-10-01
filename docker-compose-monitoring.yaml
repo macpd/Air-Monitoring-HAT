@@ -30,6 +30,18 @@ services:
     depends_on:
       - prometheus
 
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - '1883:1883'
+    user: "103:108"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config:ro
+      - /var/lib/mosquitto:/var/lib/mosquitto:rw
+      - /var/log/mosquitto/:/var/log/mosquitto/:rw
+      - mosquitto-passwd:/etc/mosquitto/passwd:ro
+    restart: unless-stopped
+
   mqtt2prometheus:
     image: ghcr.io/hikhvar/mqtt2prometheus:latest
     user: "${UID:-1007}:${GID:-1007}"
@@ -40,4 +52,7 @@ services:
     environment:
       MQTT2PROM_MQTT_USER: mqtt
       MQTT2PROM_MQTT_PASSWORD: <placeholder>
+    restart: unless-stopped
+    depends_on:
+      mosquitto
 
