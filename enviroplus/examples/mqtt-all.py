@@ -269,7 +269,7 @@ def display_text(values, variable, unit):
 
 # Saves the data to be used in the graphs later and prints to the log
 def update_data_window(values, data):
-    values = values[1:] + [data]
+    return values[1:] + [data]
 
 
 
@@ -405,18 +405,18 @@ def main():
                (255, 255, 0),         # High
                (255, 0, 0)]           # Dangerously High
 
-    temperature = []
-    pressure = []
-    humidity = []
-    light = []
-    proximity = []
-    #  oxidised = []
-    #  reduced = []
-    #  nh3 = []
-    pm1 = []
-    pm25 = []
-    pm10 = []
-    aqi = []
+    temperature = [0] * WIDTH
+    pressure = [0] * WIDTH
+    humidity = [0] * WIDTH
+    light = [0] * WIDTH
+    proximity = [0] * WIDTH
+    #  oxidised = [0] * WIDTH
+    #  reduced = [0] * WIDTH
+    #  nh3 = [0] * WIDTH
+    pm1 = [0] * WIDTH
+    pm25 = [0] * WIDTH
+    pm10 = [0] * WIDTH
+    aqi = [0] * WIDTH
 
     values = {}
 
@@ -538,37 +538,31 @@ def main():
                 display_status(disp, args.broker)
 
             if mode == 10:
-                # Everything on one screen
-                #  display_everything()
-                #  # Displays all the text on the 0.96" LCD
-                #  def display_everything(disp, values):
                 draw.rectangle((0, 0, WIDTH, HEIGHT), (0, 0, 0))
                 column_count = 2
                 num_variables = 8 if HAS_PMS else 4
                 row_count = (num_variables / column_count)
                 display_values = [
-                    (temperature, "temperature", "C"),
-                    (pressure, "pressure", "hPa"),
-                    (humidity, "humidity", "%"),
-                    (light, "light", "lux"),
+                    ("temperature", temperature, "C"),
+                    ("pressure", pressure, "hPa"),
+                    ("humidity", humidity, "%"),
+                    ("light", light, "lux"),
                     ]
                 if HAS_PMS:
                     display_values.extend([
-                        (pm1, "pm1", "ug/m3"),
-                        (pm25, "pm25", "ug/m3"),
-                        (pm10, "pm10", "ug/m3"),
+                        ("pm1", pm1, "ug/m3"),
+                        ("pm25", pm25, "ug/m3"),
+                        ("pm10", pm10, "ug/m3"),
                         ])
                 for i, vals in enumerate(display_values):
-                    #  variable = VARIABLES[i]
-                    #  data_value = values[variable][-1]
-                    #  unit = UNITS[i]
                     x = x_offset + ((WIDTH // column_count) * (i // row_count))
                     y = y_offset + ((HEIGHT / row_count) * (i % row_count))
-                    msg = "{variable[:4]}: {data_value:.1f} {unit}".format(variable=vals[0], data_value=vals[1], unit=vals[2])
+                    data_val = vals[1][-1]
+                    msg = "{variable}: {data_value:.1f} {unit}".format(variable=vals[0][:4], data_value=data_val, unit=vals[2])
                     lim = LIMITS[i]
                     rgb = palette[0]
                     for j in range(len(lim)):
-                        if vals[1] > lim[j]:
+                        if data_val > lim[j]:
                             rgb = palette[j + 1]
                     draw.text((x, y), msg, font=smallfont, fill=rgb)
                 disp.display(img)
@@ -576,7 +570,7 @@ def main():
 
     # The main loop
         except Exception as e:
-            print(e)
+          print(e)
 
 
 if __name__ == "__main__":
