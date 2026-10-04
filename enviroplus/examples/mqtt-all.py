@@ -5,6 +5,7 @@ Run mqtt broker on localhost: sudo apt-get install mosquitto mosquitto-clients
 Example run: python3 mqtt-all.py --broker 192.168.1.164 --topic enviro --username xxx --password xxxx
 """
 
+import colorsys
 import argparse
 import ssl
 import time
@@ -45,6 +46,83 @@ DEFAULT_TLS_MODE = False
 DEFAULT_USERNAME = None
 DEFAULT_PASSWORD = None
 
+# Create ST7735 LCD display class
+disp = st7735.ST7735(
+    port=0,
+    cs=0,
+    dc="GPIO9",
+    backlight="GPIO12",
+    rotation=270,
+    spi_speed_hz=10000000
+)
+
+# Initialize display
+disp.begin()
+
+WIDTH = disp.width
+HEIGHT = disp.height
+
+# Set up canvas and font
+img = Image.new("RGB", (WIDTH, HEIGHT), color=(0, 0, 0))
+draw = ImageDraw.Draw(img)
+font_size_small = 10
+font_size_large = 20
+font = ImageFont.truetype(UserFont, font_size_large)
+smallfont = ImageFont.truetype(UserFont, font_size_small)
+x_offset = 2
+y_offset = 2
+
+message = ""
+
+# The position of the top bar
+TOP_POS = 25
+
+# Create a values dict to store the data
+VARIABLES = ["temperature",
+             "pressure",
+             "humidity",
+             "light",
+             "oxidised",
+             "reduced",
+             "nh3",
+             "pm1",
+             "pm25",
+             "pm10"]
+
+UNITS = ["C",
+         "hPa",
+         "%",
+         "Lux",
+         "kO",
+         "kO",
+         "kO",
+         "ug/m3",
+         "ug/m3",
+         "ug/m3"]
+
+# Define your own warning limits
+# The limits definition follows the order of the VARIABLES array
+# Example limits explanation for temperature:
+# [4,18,28,35] means
+# [-273.15 .. 4] -> Dangerously Low
+# (4 .. 18]      -> Low
+# (18 .. 28]     -> Normal
+# (28 .. 35]     -> High
+# (35 .. MAX]    -> Dangerously High
+# DISCLAIMER: The limits provided here are just examples and come
+# with NO WARRANTY. The authors of this example code claim
+# NO RESPONSIBILITY if reliance on the following values or this
+# code in general leads to ANY DAMAGES or DEATH.
+LIMITS = [[4, 18, 28, 35],
+          [250, 650, 1013.25, 1015],
+          [20, 30, 60, 70],
+          [-1, -1, 30000, 100000],
+          [-1, -1, 40, 50],
+          [-1, -1, 450, 550],
+          [-1, -1, 200, 300],
+          [-1, -1, 50, 100],
+          [-1, -1, 50, 100],
+          [-1, -1, 50, 100]]
 
 # mqtt callbacks
 def on_connect(client, userdata, flags, rc):
@@ -138,10 +216,10 @@ def check_wifi():
 
 
 # Display Raspberry Pi serial and Wi-Fi status on LCD
-def display_status(disp, mqtt_broker):
+def display_status(mqtt_broker):
     # Width and height to calculate text position
-    WIDTH = disp.width
-    HEIGHT = disp.height
+    #  WIDTH = disp.width
+    #  HEIGHT = disp.height
     # Text settings
     font_size = 12
     font = ImageFont.truetype(UserFont, font_size)
@@ -161,6 +239,38 @@ def display_status(disp, mqtt_broker):
     draw.rectangle((0, 0, 160, 80), back_colour)
     draw.text((x, y), message, font=font, fill=text_colour)
     disp.display(img)
+
+
+# Displays data and text on the 0.96" LCD
+def display_text(values, variable, unit):
+    data = values[-1]
+    # Scale the values for the variable between 0 and 1
+    vmin = min(values)
+    vmax = max(values)
+    colours = [(v - vmin + 1) / (vmax - vmin + 1) for v in values]
+    # Format the variable name and value
+    message = f"{variable[:4]}: {data:.1f} {unit}"
+    # TODO(macpd): use logging
+    print(message)
+    draw.rectangle((0, 0, WIDTH, HEIGHT), (255, 255, 255))
+    for i in range(len(colours)):
+        # Convert the values to colours from red to blue
+        colour = (1.0 - colours[i]) * 0.6
+        r, g, b = [int(x * 255.0) for x in colorsys.hsv_to_rgb(colour, 1.0, 1.0)]
+        # Draw a 1-pixel wide rectangle of colour
+        draw.rectangle((i, TOP_POS, i + 1, HEIGHT), (r, g, b))
+        # Draw a line graph in black
+        line_y = HEIGHT - (TOP_POS + (colours[i] * (HEIGHT - TOP_POS))) + TOP_POS
+        draw.rectangle((i, line_y, i + 1, line_y + 1), (0, 0, 0))
+    # Write the text at the top in black
+    draw.text((0, 0), message, font=font, fill=(0, 0, 0))
+    disp.display(img)
+
+
+# Saves the data to be used in the graphs later and prints to the log
+def update_data_window(values, data):
+    values = values[1:] + [data]
+
 
 
 def main():
@@ -248,17 +358,17 @@ def main():
     bme280 = BME280(i2c_dev=bus)
 
     # Create LCD instance
-    disp = st7735.ST7735(
-        port=0,
-        cs=0,
-        dc="GPIO9",
-        backlight="GPIO12",
-        rotation=270,
-        spi_speed_hz=10000000
-    )
+    #  disp = st7735.ST7735(
+        #  port=0,
+        #  cs=0,
+        #  dc="GPIO9",
+        #  backlight="GPIO12",
+        #  rotation=270,
+        #  spi_speed_hz=10000000
+    #  )
 
-    # Initialize display
-    disp.begin()
+    #  # Initialize display
+    #  disp.begin()
 
     # Try to create PMS5003 instance
     HAS_PMS = False
@@ -269,6 +379,47 @@ def main():
         print("PMS5003 sensor is connected")
     except SerialTimeoutError:
         print("No PMS5003 sensor connected")
+
+    #  disp.begin()
+
+    #  WIDTH = disp.width
+    #  HEIGHT = disp.height
+
+    # Set up canvas and font
+    #  img = Image.new("RGB", (WIDTH, HEIGHT), color=(0, 0, 0))
+    #  draw = ImageDraw.Draw(img)
+    #  font_size_small = 10
+    #  font_size_large = 20
+    #  font = ImageFont.truetype(UserFont, font_size_large)
+    #  smallfont = ImageFont.truetype(UserFont, font_size_small)
+    #  x_offset = 2
+    #  y_offset = 2
+
+    #  message = ""
+
+
+    # RGB palette for values on the combined screen
+    palette = [(0, 0, 255),           # Dangerously Low
+               (0, 255, 255),         # Low
+               (0, 255, 0),           # Normal
+               (255, 255, 0),         # High
+               (255, 0, 0)]           # Dangerously High
+
+    temperature = []
+    pressure = []
+    humidity = []
+    light = []
+    proximity = []
+    #  oxidised = []
+    #  reduced = []
+    #  nh3 = []
+    pm1 = []
+    pm25 = []
+    pm10 = []
+    aqi = []
+
+    values = {}
+
 
     # Display Raspberry Pi serial and Wi-Fi status
     print(f"RPi serial: {device_serial_number}")
@@ -281,6 +432,16 @@ def main():
 
     # Main loop to read data, display, and send over mqtt
     mqtt_client.loop_start()
+
+    # Tuning factor for compensation. Decrease this number to adjust the
+    # temperature down, and increase to adjust up
+    factor = 2.25
+
+    cpu_temps = [get_cpu_temperature()] * 5
+
+    delay = 0.5  # Debounce the proximity tap
+    mode = 10    # The starting mode
+    last_page = 0
     while True:
         try:
             values = read_bme280(bme280)
@@ -293,7 +454,127 @@ def main():
                 values["serial"] = device_serial_number
                 print(values)
                 mqtt_client.publish(args.topic, json.dumps(values), retain=True)
+                #  display_status(disp, args.broker)
+
+            proximity = ltr559.get_proximity()
+
+            cpu_temp = get_cpu_temperature()
+            # Smooth out with some averaging to decrease jitter
+            cpu_temps = cpu_temps[1:] + [cpu_temp]
+            avg_cpu_temp = sum(cpu_temps) / float(len(cpu_temps))
+            raw_temp = bme280.get_temperature()
+            new_temp = raw_temp - ((avg_cpu_temp - raw_temp) / factor)
+            temperature = update_data_window(temperature, new_temp)
+
+            pressure = update_data_window(pressure, bme280.get_pressure())
+
+            humidity = update_data_window(humidity, bme280.get_humidity())
+
+            light = update_data_window(light, ltr559.get_lux() if proximity < 10 else 1)
+
+            if HAS_PMS:
+                pm1 = update_data_window(pm1, pms_values['pm1'])
+                pm25 = update_data_window(pm25, pms_values['pm25'])
+                pm10 = update_data_window(pm10, pms_values['pm10'])
+                aqi = update_data_window(aqi, pms_values['eaqi'])
+
+            # If the proximity crosses the threshold, toggle the mode
+            if proximity > 1500 and time.time() - last_page > delay:
+                mode += 1
+                mode %= (len(VARIABLES) + 1)
+                last_page = time.time()
+
+            # One mode for each variable
+            if mode == 0:
+                # variable = "temperature"
+                unit = "°C"
+                display_text(temperature, 'temperature', unit)
+
+            if mode == 1:
+                # variable = "pressure"
+                unit = "hPa"
+                display_text(pressure, "pressure", unit)
+
+            if mode == 2:
+                # variable = "humidity"
+                unit = "%"
+                display_text(humidity, "humidity", unit)
+
+            if mode == 3:
+                # variable = "light"
+                unit = "Lux"
+                display_text(light, "light", unit)
+
+            if mode == 4:
+                # variable = "pm1"
+                unit = "ug/m3"
+                if HAS_PMS:
+                    display_text(pm1, "PM 1", unit)
+                else:
+                    display_text(["Not available"], "PM 1", unit)
+
+            if mode == 5:
+                # variable = "pm25"
+                unit = "ug/m3"
+                if HAS_PMS:
+                    display_text(pm25, "PM 2.5", unit)
+                else:
+                    display_text(["Not available"], "PM 2.5", unit)
+
+            if mode == 6:
+                # variable = "pm10"
+                if HAS_PMS:
+                    display_text(pm10, "PM 10", unit)
+                else:
+                    display_text(["Not available"], "PM 10", unit)
+
+            if mode == 7:
+                if HAS_PMS:
+                    display_text(aqi, "AQI", '')
+                else:
+                    display_text(["Not available"], "AQI", '')
+
+            if mode == 8:
                 display_status(disp, args.broker)
+
+            if mode == 10:
+                # Everything on one screen
+                #  display_everything()
+                #  # Displays all the text on the 0.96" LCD
+                #  def display_everything(disp, values):
+                draw.rectangle((0, 0, WIDTH, HEIGHT), (0, 0, 0))
+                column_count = 2
+                num_variables = 8 if HAS_PMS else 4
+                row_count = (num_variables / column_count)
+                display_values = [
+                    (temperature, "temperature", "C"),
+                    (pressure, "pressure", "hPa"),
+                    (humidity, "humidity", "%"),
+                    (light, "light", "lux"),
+                    ]
+                if HAS_PMS:
+                    display_values.extend([
+                        (pm1, "pm1", "ug/m3"),
+                        (pm25, "pm25", "ug/m3"),
+                        (pm10, "pm10", "ug/m3"),
+                        ])
+                for i, vals in enumerate(display_values):
+                    #  variable = VARIABLES[i]
+                    #  data_value = values[variable][-1]
+                    #  unit = UNITS[i]
+                    x = x_offset + ((WIDTH // column_count) * (i // row_count))
+                    y = y_offset + ((HEIGHT / row_count) * (i % row_count))
+                    msg = "{variable[:4]}: {data_value:.1f} {unit}".format(variable=vals[0], data_value=vals[1], unit=vals[2])
+                    lim = LIMITS[i]
+                    rgb = palette[0]
+                    for j in range(len(lim)):
+                        if vals[1] > lim[j]:
+                            rgb = palette[j + 1]
+                    draw.text((x, y), msg, font=smallfont, fill=rgb)
+                disp.display(img)
+
+
+    # The main loop
         except Exception as e:
             print(e)
 

@@ -9,6 +9,7 @@ Type=simple
 User=nose
 WorkingDirectory=/home/nose/Air-Monitoring-HAT/
 ExecStart=/home/nose/Air-Monitoring-HAT/venv/bin/python /home/nose/Air-Monitoring-HAT/rad_loop.py
+ExecStart=/home/nose/.virtualenvs/pimoroni/bin/python /home/nose/Air-Monitoring-HAT/enviroplus/examples/mqtt-all.py
 Restart=on-abort
 
 [Install]
