@@ -553,6 +553,7 @@ def main():
                         ("pm1", pm1, "ug/m3"),
                         ("pm25", pm25, "ug/m3"),
                         ("pm10", pm10, "ug/m3"),
+                        ("AQI", aqi, ""),
                         ])
                 for i, vals in enumerate(display_values):
                     x = x_offset + ((WIDTH // column_count) * (i // row_count))
