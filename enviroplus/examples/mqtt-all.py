@@ -267,6 +267,10 @@ def display_text(values, variable, unit):
     disp.display(img)
 
 
+def celsius_to_farenheit(c):
+    return (c * 1.8) + 32
+
+
 # Saves the data to be used in the graphs later and prints to the log
 def update_data_window(values, data):
     return values[1:] + [data]
@@ -487,7 +491,10 @@ def main():
             # One mode for each variable
             if mode == 0:
                 # variable = "temperature"
-                unit = "°C"
+                #  unit = "°C"
+                #  display_text(temperature, 'temperature', unit)
+                unit = "°F"
+                temp_f = list(map(celsius_to_farenheit, temperature))
                 display_text(temperature, 'temperature', unit)
 
             if mode == 1:
@@ -543,7 +550,7 @@ def main():
                 num_variables = 8 if HAS_PMS else 4
                 row_count = (num_variables / column_count)
                 display_values = [
-                    ("temperature", temperature, "C"),
+                    ("temperature", list(map(celsius_to_farenheit, temperature)) "F"),
                     ("pressure", pressure, "hPa"),
                     ("humidity", humidity, "%"),
                     ("light", light, "lux"),
