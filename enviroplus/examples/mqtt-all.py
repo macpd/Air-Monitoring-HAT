@@ -550,7 +550,7 @@ def main():
                 num_variables = 8 if HAS_PMS else 4
                 row_count = (num_variables / column_count)
                 display_values = [
-                    ("temperature", list(map(celsius_to_farenheit, temperature)) "F"),
+                    ("temperature", list(map(celsius_to_farenheit, temperature)), "F"),
                     ("pressure", pressure, "hPa"),
                     ("humidity", humidity, "%"),
                     ("light", light, "lux"),
