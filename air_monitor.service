@@ -2,7 +2,7 @@
 
 [Unit]
 Description=Simple air monitoring service. Reads values from air monitor HAT and exports those values via prometheus client
-After=syslog.target network.target
+After=network-online.target
 
 [Service]
 Type=simple
