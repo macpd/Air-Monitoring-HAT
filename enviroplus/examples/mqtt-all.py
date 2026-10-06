@@ -113,7 +113,7 @@ UNITS = ["C",
 # with NO WARRANTY. The authors of this example code claim
 # NO RESPONSIBILITY if reliance on the following values or this
 # code in general leads to ANY DAMAGES or DEATH.
-LIMITS = [[4, 18, 28, 35],
+LIMITS = [list(map(celsius_to_farenheit, [4, 18, 28, 35])),
           [250, 650, 1013.25, 1015],
           [20, 30, 60, 70],
           [-1, -1, 30000, 100000],
