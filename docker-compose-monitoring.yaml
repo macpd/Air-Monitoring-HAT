@@ -53,11 +53,3 @@ services:
     ports:
       - 9000:9000
     restart: unless-stopped
-
-  mosquitto-exporter:
-    image: sapcc/mosquitto-exporter
-    environment:
-      - "BROKER_ENDPOINT=tcp://mosquitto:1883"
-      - MQTT_USER=RANDOM_USER
-      - MQTT_PASS=RANDOM_PASSWORD
-    restart: unless-stopped
