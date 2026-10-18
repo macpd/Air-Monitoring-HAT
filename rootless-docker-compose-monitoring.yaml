@@ -1,0 +1,57 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - /var/lib/prometheus:/prometheus
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    # In rootless mode root is mapped to the user under whom docker runs
+    user: 0:0
+    restart: unless-stopped
+
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:v1.9.0
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "/:/host:ro,rslave"
+    pid: host
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - /var/lib/grafana/:/var/lib/grafana
+    user: "${UID:-1007}:${GID:-1007}"
+    ports:
+      - '3000:3000'
+    # In rootless mode root is mapped to the user under whom docker runs
+    user: 0:0
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - '1883:1883'
+    volumes:
+      - ./rootless-mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - /var/lib/mosquitto:/var/lib/mosquitto:rw
+      - /var/log/mosquitto/:/var/log/mosquitto/:rw
+      - ./mosquitto_passwd:/etc/mosquitto/passwd:ro
+    restart: unless-stopped
+
+  mqtt-exporter:
+    image: kpetrem/mqtt-exporter
+    environment:
+      - MQTT_ADDRESS=mosquitto
+      - PROMETHEUS_PREFIX=sensor_
+      - TOPIC_LABEL=sensor
+      - MQTT_USERNAME=RANDOM_USER
+      - MQTT_PASSWORD=RANDOM_PASSWORD
+    ports:
+      - 9000:9000
+    restart: unless-stopped
