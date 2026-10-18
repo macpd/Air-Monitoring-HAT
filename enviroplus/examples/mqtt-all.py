@@ -91,7 +91,8 @@ VARIABLES = ["temperature",
              "nh3",
              "pm1",
              "pm25",
-             "pm10"]
+             "pm10"
+             "display_off"]
 
 UNITS = ["C",
          "hPa",
@@ -487,6 +488,12 @@ def main():
                 mode += 1
                 mode %= (len(VARIABLES) + 1)
                 last_page = time.time()
+
+            if mode == len(VARIABLES) -1:
+              disp.sleep()
+              continue
+            else:
+              disp.wake()
 
             # One mode for each variable
             if mode == 0:
