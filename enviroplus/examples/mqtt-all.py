@@ -46,6 +46,10 @@ DEFAULT_TLS_MODE = False
 DEFAULT_USERNAME = None
 DEFAULT_PASSWORD = None
 
+def celsius_to_fahrenheit(c):
+    return (c * 1.8) + 32
+
+
 # Create ST7735 LCD display class
 disp = st7735.ST7735(
     port=0,
@@ -113,7 +117,7 @@ UNITS = ["C",
 # with NO WARRANTY. The authors of this example code claim
 # NO RESPONSIBILITY if reliance on the following values or this
 # code in general leads to ANY DAMAGES or DEATH.
-LIMITS = [list(map(celsius_to_farenheit, [4, 18, 28, 35])),
+LIMITS = [list(map(celsius_to_fahrenheit, [4, 18, 28, 35])),
           [250, 650, 1013.25, 1015],
           [20, 30, 60, 70],
           [-1, -1, 30000, 100000],
@@ -265,10 +269,6 @@ def display_text(values, variable, unit):
     # Write the text at the top in black
     draw.text((0, 0), message, font=font, fill=(0, 0, 0))
     disp.display(img)
-
-
-def celsius_to_farenheit(c):
-    return (c * 1.8) + 32
 
 
 # Saves the data to be used in the graphs later and prints to the log
@@ -494,7 +494,7 @@ def main():
                 #  unit = "°C"
                 #  display_text(temperature, 'temperature', unit)
                 unit = "°F"
-                temp_f = list(map(celsius_to_farenheit, temperature))
+                temp_f = list(map(celsius_to_fahrenheit, temperature))
                 display_text(temperature, 'temperature', unit)
 
             if mode == 1:
@@ -550,7 +550,7 @@ def main():
                 num_variables = 8 if HAS_PMS else 4
                 row_count = (num_variables / column_count)
                 display_values = [
-                    ("temperature", list(map(celsius_to_farenheit, temperature)), "F"),
+                    ("temperature", list(map(celsius_to_fahrenheit, temperature)), "F"),
                     ("pressure", pressure, "hPa"),
                     ("humidity", humidity, "%"),
                     ("light", light, "lux"),
