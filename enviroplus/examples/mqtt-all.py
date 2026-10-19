@@ -490,10 +490,10 @@ def main():
                 last_page = time.time()
 
             if mode == len(VARIABLES) -1:
-              disp.sleep()
+              disp.display_off()
               continue
             else:
-              disp.wake()
+              disp.display_on()
 
             # One mode for each variable
             if mode == 0:
